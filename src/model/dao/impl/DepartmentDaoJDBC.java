@@ -5,9 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import com.mysql.cj.xdevapi.PreparableStatement;
+import java.util.Map;
 
 import database.DB;
 import database.DbException;
@@ -115,12 +116,32 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
     @Override
     public List<Department> findAll() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findAll'");
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            st = conn.prepareStatement("SELECT department.* FROM department ");
+
+            rs = st.executeQuery();
+
+            List<Department> list = new ArrayList<>();
+
+            while (rs.next()) {
+                Department dp = instantiateDeparment(rs);
+                list.add(dp);
+            }
+
+            return list;
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        } finally {
+            DB.closeStatement(st);
+            DB.closeResultSet(rs);
+        }
     }
 
 
-    private Department  instantiateDeparment(ResultSet rs) throws SQLException{
+    private Department instantiateDeparment(ResultSet rs) throws SQLException{
         Department dep = new Department();
 
         dep.setId(rs.getInt("Id"));
