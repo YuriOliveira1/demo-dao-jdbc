@@ -36,7 +36,7 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
             int rowsAffected = st.executeUpdate();
 
-            if (rowsAffected > 0){
+            if (rowsAffected > 0) {
                 ResultSet rs = st.getGeneratedKeys();
                 if (rs.next()) {
                     int id = rs.getInt(1);
@@ -56,8 +56,20 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
     @Override
     public void update(Department dp) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+        PreparedStatement st = null;
+
+        try {
+            st = conn.prepareStatement("UPDATE department SET Name = ? WHERE Id = ? ");
+
+            st.setString(1, dp.getName());
+            st.setInt(2, dp.getId());
+
+            st.executeUpdate();
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        } finally {
+            DB.closeStatement(st);
+        }
     }
 
     @Override
@@ -79,8 +91,26 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 
     @Override
     public Department findById(Integer id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findById'");
+        PreparedStatement st = null;
+        ResultSet rs = null;
+
+        try {
+            st = conn.prepareStatement("SELECT department.* FROM department ");
+
+            rs = st.executeQuery();
+
+            if (rs.next()) {
+                Department dep = instantiateDeparment(rs);
+                return dep;
+            }
+
+            return null;
+        } catch (SQLException e) {
+            throw new DbException(e.getMessage());
+        } finally {
+            DB.closeStatement(st);
+            DB.closeResultSet(rs);
+        }
     }
 
     @Override
@@ -89,4 +119,13 @@ public class DepartmentDaoJDBC implements DepartmentDao {
         throw new UnsupportedOperationException("Unimplemented method 'findAll'");
     }
 
+
+    private Department  instantiateDeparment(ResultSet rs) throws SQLException{
+        Department dep = new Department();
+
+        dep.setId(rs.getInt("Id"));
+        dep.setName(rs.getString("Name"));
+
+        return dep;
+    }
 }

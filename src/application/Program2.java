@@ -22,6 +22,14 @@ public class Program2 {
         int id = sc.nextInt();
         dd.deleteById(id);
 
+        System.out.println("=== TEST 3 UPDATE ===");
+        dp = dd.findById(1);
+        dp.setName("Xambrulitos");
+        dd.update(dp);
         sc.close();
+
+        System.out.println("=== TEST 4 FindById ===");
+        dp = dd.findById(1);
+        System.out.println(dp);
     }
 }
